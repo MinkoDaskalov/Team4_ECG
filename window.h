@@ -8,6 +8,7 @@
 #include <qpushbutton.h>
 #include <qfile.h>
 #include <qstring.h>
+#include <qwt_text_label.h>
 
 #include <QBoxLayout>
 #include "adcreader.h"
@@ -23,9 +24,9 @@ class Window : public QWidget
 public:
 	Window(); // default constructor - called when a Window is declared without arguments
 
+    ~Window(); // Deconstructor
+
 	void timerEvent( QTimerEvent * );
-    ADCreader *reader;
-    Iir::Butterworth::LowPass<3> lp;
 
 public slots:
 
@@ -34,17 +35,17 @@ public slots:
 
 // internal variables for the window class
 private:
-	QwtPlot      plot;
-	QwtPlotCurve curve;
+    QwtPlot      plot;
+    QwtPlotCurve curve;
     QPushButton  button, button2;
     QString filename = "data.txt";
     QFile file;
-
+    QwtTextLabel *label;
 
 
 	// layout elements from Qt itself http://qt-project.org/doc/qt-4.8/classes.html
-	QVBoxLayout  vLayout;  // vertical layout
-	QHBoxLayout  hLayout;  // horizontal layout
+    QVBoxLayout  vLayout;  // vertical layout
+    QHBoxLayout  hLayout;  // horizontal layout
 
     static const int plotDataSize =400;
 
@@ -52,12 +53,14 @@ private:
 	double xData[plotDataSize];
 	double yData[plotDataSize];
 
-    int flag = 0;
+    int flagRecord = 0;
 	int count;
     double inVal;
     double converted;
-    int flag2 = 0;
+    int flagFilter = 0;
 
+    ADCreader *reader;
+    Iir::Butterworth::LowPass<3> lp;
 };
 
 #endif // WINDOW_H

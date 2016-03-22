@@ -11,7 +11,10 @@ Window::Window() : plot( QString("Heart Rate Monitor") ), count(0) // <-- 'c++ i
     button2.setText("FILTER ON");
     connect(&button2, SIGNAL(released()), SLOT(Filter()));
 
-
+    // When created as a pointer and using the -> operator you need to create a new object otherwise it won't compile
+    label = new QwtTextLabel;
+    label->setText("Real Time Embedded Programming M - Team 4 ECG");
+    label->show();  // Works without it as well
 
 	// set up the initial plot data
 	for( int index=0; index<plotDataSize; ++index )
@@ -23,18 +26,18 @@ Window::Window() : plot( QString("Heart Rate Monitor") ), count(0) // <-- 'c++ i
 
 
 	// make a plot curve from the data and attach it to the plot
-	curve.setSamples(xData, yData, plotDataSize);
-	curve.attach(&plot);
+    curve.setSamples(xData, yData, plotDataSize);
+    curve.attach(&plot);
 
-	plot.replot();
-	plot.show();
+    plot.replot();
+    plot.show();
 
     hLayout.addWidget(&button);
     hLayout.addWidget(&button2);
 
-
     vLayout.addWidget(&plot);
     vLayout.addLayout(&hLayout);
+    vLayout.addWidget(label);
     setLayout(&vLayout);
 
 
@@ -47,6 +50,16 @@ Window::Window() : plot( QString("Heart Rate Monitor") ), count(0) // <-- 'c++ i
 }
 
 
+Window::~Window()
+{
+    // tells the thread to no longer run its endless loop
+    reader->quit();
+    // wait until the run method has terminated
+    reader->wait();
+    //	delete adcreader;
+}
+
+
 void Window::timerEvent( QTimerEvent * )
 {
 
@@ -54,7 +67,7 @@ void Window::timerEvent( QTimerEvent * )
 
 
             //Filter or not
-            if (flag2 == 1)
+            if (flagFilter == 1)
                 inVal = lp.filter(reader->getSample());
             else
                 inVal = reader->getSample();
@@ -67,7 +80,7 @@ void Window::timerEvent( QTimerEvent * )
             ++count;
 
             //Save to text file if button pressed
-            if (flag == 1){
+            if (flagRecord == 1){
                 QTextStream out(&file);
                 out<<count<<" "<<converted<<endl;
 
@@ -79,28 +92,29 @@ void Window::timerEvent( QTimerEvent * )
 
 
 void Window::Record(){
-    if (flag==0){
+    if (flagRecord==0){
         button.setText("STOP RECORD");
-        flag = 1;
+        flagRecord = 1;
         file.setFileName(filename);
         file.open(QIODevice::WriteOnly|QIODevice::Text);
         count = 0;
     }
     else{
         button.setText("START RECORD");
-        flag = 0;
+        flagRecord = 0;
         file.close();
     }
 }
 
+
 void Window::Filter(){
-    if (flag2 == 0){
+    if (flagFilter == 0){
         button2.setText("FILTER OFF");
-        flag2 = 1;
+        flagFilter = 1;
     }
     else{
         button2.setText("FILTER ON");
-        flag2 = 0;
+        flagFilter = 0;
     }
 
 }
