@@ -11,10 +11,8 @@ Window::Window() : plot( QString("Heart Rate Monitor") ), count(0) // <-- 'c++ i
     button2.setText("FILTER ON");
     connect(&button2, SIGNAL(released()), SLOT(Filter()));
 
-    // When created as a pointer and using the -> operator you need to create a new object otherwise it won't compile
-    label = new QwtTextLabel;
-    label->setText("Real Time Embedded Programming M - Team 4 ECG");
-    label->show();  // Works without it as well
+    label.setText("Real Time Embedded Programming M - Team 4 ECG");
+    label.show();  // Works without it as well
 
 	// set up the initial plot data
 	for( int index=0; index<plotDataSize; ++index )
@@ -37,7 +35,7 @@ Window::Window() : plot( QString("Heart Rate Monitor") ), count(0) // <-- 'c++ i
 
     vLayout.addWidget(&plot);
     vLayout.addLayout(&hLayout);
-    vLayout.addWidget(label);
+    vLayout.addWidget(&label);
     setLayout(&vLayout);
 
 

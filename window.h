@@ -40,7 +40,7 @@ private:
     QPushButton  button, button2;
     QString filename = "data.txt";
     QFile file;
-    QwtTextLabel *label;
+    QwtTextLabel label;
 
 
 	// layout elements from Qt itself http://qt-project.org/doc/qt-4.8/classes.html
