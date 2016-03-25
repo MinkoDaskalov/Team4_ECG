@@ -46,7 +46,7 @@ Window::Window() : plot( QString("Heart Rate Monitor") ), count(0) // <-- 'c++ i
     reader = new ADCreader();
     reader->start();
 
-    notch.setup(3,125,45,55);  //order,sampling rate, Fc
+    notch.setup(3,125,45,55);  //order,sampling rate, Fc - 50Hz notch filter
     notch.reset ();
 
 }
@@ -68,12 +68,13 @@ void Window::timerEvent( QTimerEvent * )
     while(reader->hasSample()){
 
 
-            //Filter or not
+            //Filter or not 50Hz noise chosen by user
             if (flagFilter == 1)
                 inVal = notch.filter(reader->getSample());
             else
                 inVal = reader->getSample();
 
+            //Convert to V and plot new data
             memmove( yData, yData+1, (plotDataSize-1) * sizeof(double) );
             converted = (inVal/65536)*3.3;
             yData[plotDataSize-1] = converted;
@@ -81,7 +82,9 @@ void Window::timerEvent( QTimerEvent * )
             ++count;
             ++sampleCount;
 
+            //Create a separate buffer (20sec of sampling) to estimate heart rate
             if (sampleCount <= 2500){
+                //Compute a moving average for threshold
                 average = ((average*(sampleCount-1))+converted)/sampleCount;
                 samples[sampleCount] = converted;
             }
@@ -132,7 +135,7 @@ void Window::CalculateBPM(){
 
     int flagBeat = 0;
     int beats = 0;
-    double threshold  = average-0.04; // Experimental
+    double threshold  = average-0.04; // Experimentally set threshold
 
     for(int i = 1; i<=2500; i++){
         if (samples[i]<threshold){
@@ -146,7 +149,7 @@ void Window::CalculateBPM(){
                 flagBeat = 0;
         }
     }
-    int bpm = beats*3; // take about 20 sec of samples
+    int bpm = beats*3; // estimation on 20sec of sampling
 
     if (bpm>=60 && bpm <=120)
         heartRate.setText("Heart Rate:"+QString::number(bpm)+" bpm");
