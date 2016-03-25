@@ -192,6 +192,7 @@ void ADCreader::run()
         // read the data register by performing two 8 bit reads
         int value = readData(fd)-0x8000;
 
+
         *pIn = value;
         if (pIn == (&samples[MAX_SAMPLES-1]))
           pIn = samples;

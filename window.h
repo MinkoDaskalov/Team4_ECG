@@ -9,10 +9,12 @@
 #include <qfile.h>
 #include <qstring.h>
 #include <qwt_text_label.h>
+#include <stdio.h>
 
 #include <QBoxLayout>
 #include "adcreader.h"
 #include "Iir.h"
+#include <time.h>
 
 
 // class definition 'Window'
@@ -35,12 +37,16 @@ public slots:
 
 // internal variables for the window class
 private:
+    void CalculateBPM();
+
+
     QwtPlot      plot;
     QwtPlotCurve curve;
     QPushButton  button, button2;
     QString filename = "data.txt";
     QFile file;
     QwtTextLabel label;
+    QwtTextLabel heartRate;
 
 
 	// layout elements from Qt itself http://qt-project.org/doc/qt-4.8/classes.html
@@ -48,17 +54,22 @@ private:
     QHBoxLayout  hLayout;  // horizontal layout
 
     static const int plotDataSize =400;
+    static const int samplesForBPM = 2500;
 
 	// data arrays for the plot
 	double xData[plotDataSize];
 	double yData[plotDataSize];
+    double samples[samplesForBPM];
 
     int flagRecord = 0;
 	int count;
     double inVal;
     double converted;
+    double average = 0;
     int flagFilter = 0;
-
+    int sampleCount = 0;
+    clock_t timeNew = 0;
+    clock_t timeOld = 0;
     ADCreader *reader;
     Iir::Butterworth::LowPass<3> lp;
 };

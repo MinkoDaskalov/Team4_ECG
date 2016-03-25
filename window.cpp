@@ -14,13 +14,15 @@ Window::Window() : plot( QString("Heart Rate Monitor") ), count(0) // <-- 'c++ i
     label.setText("Real Time Embedded Programming M - Team 4 ECG");
     label.show();  // Works without it as well
 
+    heartRate.setText("Heart Rate: -- bpm");
+    heartRate.show();
+
 	// set up the initial plot data
 	for( int index=0; index<plotDataSize; ++index )
 	{
 		xData[index] = index;
         yData[index] = 0;
 	}
-
 
 
 	// make a plot curve from the data and attach it to the plot
@@ -32,6 +34,7 @@ Window::Window() : plot( QString("Heart Rate Monitor") ), count(0) // <-- 'c++ i
 
     hLayout.addWidget(&button);
     hLayout.addWidget(&button2);
+    hLayout.addWidget(&heartRate);
 
     vLayout.addWidget(&plot);
     vLayout.addLayout(&hLayout);
@@ -60,7 +63,6 @@ Window::~Window()
 
 void Window::timerEvent( QTimerEvent * )
 {
-
     while(reader->hasSample()){
 
 
@@ -70,12 +72,20 @@ void Window::timerEvent( QTimerEvent * )
             else
                 inVal = reader->getSample();
 
-
             memmove( yData, yData+1, (plotDataSize-1) * sizeof(double) );
             converted = (inVal/65536)*3.3;
             yData[plotDataSize-1] = converted;
             curve.setSamples(xData, yData, plotDataSize);
             ++count;
+            ++sampleCount;
+
+            if (sampleCount <= 2500){
+                average = ((average*(sampleCount-1))+converted)/sampleCount;
+                samples[sampleCount] = converted;
+            }
+
+            else
+                CalculateBPM();
 
             //Save to text file if button pressed
             if (flagRecord == 1){
@@ -85,7 +95,6 @@ void Window::timerEvent( QTimerEvent * )
             }
     }
         plot.replot();
-
 }
 
 
@@ -115,4 +124,36 @@ void Window::Filter(){
         flagFilter = 0;
     }
 
+}
+
+void Window::CalculateBPM(){
+
+    timeNew = clock()/CLOCKS_PER_SEC;
+    int flagBeat = 0;
+    int beats = 0;
+    double threshold  = average-0.04; // Experimental
+
+    for(int i = 1; i<=2500; i++){
+        if (samples[i]<threshold){
+            if (flagBeat == 0){
+                ++beats;
+                flagBeat =1;
+            }
+        }
+        else{
+            if (flagBeat == 1)
+                flagBeat = 0;
+        }
+    }
+    int elapsedTime = timeNew-timeOld;
+    int bpm = beats*60/elapsedTime;
+
+    if (bpm>=60 && bpm <=120)
+        heartRate.setText("Heart Rate:"+QString::number(bpm)+" bpm");
+    else
+        heartRate.setText("Heart Rate: -- bpm");
+
+    sampleCount = 0;
+    average = 0;
+    timeOld = timeNew;
 }
