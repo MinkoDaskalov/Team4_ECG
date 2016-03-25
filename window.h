@@ -58,7 +58,7 @@ private:
 	// data arrays for the plot
 	double xData[plotDataSize];
 	double yData[plotDataSize];
-    double samples[samplesForBPM];
+    double samples[2*samplesForBPM];
 
     int flagRecord = 0;
 	int count;

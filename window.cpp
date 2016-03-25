@@ -82,22 +82,24 @@ void Window::timerEvent( QTimerEvent * )
             ++count;
             ++sampleCount;
 
-            //Create a separate buffer (20sec of sampling) to estimate heart rate
-            if (sampleCount <= 2500){
-                //Compute a moving average for threshold
-                average = ((average*(sampleCount-1))+converted)/sampleCount;
-                samples[sampleCount] = converted;
-            }
-
-            else
-                CalculateBPM();
 
             //Save to text file if button pressed
             if (flagRecord == 1){
                 QTextStream out(&file);
                 out<<count<<" "<<converted<<endl;
-
             }
+
+
+            //Create a separate buffer (20sec of sampling) to estimate heart rate
+            if (sampleCount <=samplesForBPM+1){
+                //Compute a moving average for threshold
+                average = ((average*(sampleCount-1))+converted)/sampleCount;
+                samples[sampleCount] = converted;
+            }
+
+          else
+                CalculateBPM();
+
     }
         plot.replot();
 }
