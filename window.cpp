@@ -46,8 +46,8 @@ Window::Window() : plot( QString("Heart Rate Monitor") ), count(0) // <-- 'c++ i
     reader = new ADCreader();
     reader->start();
 
-    lp.setup (3, 250, 45); //order,sampling rate, Fc
-    lp.reset ();
+    notch.setup(3,125,45,55);  //order,sampling rate, Fc
+    notch.reset ();
 }
 
 
@@ -68,7 +68,7 @@ void Window::timerEvent( QTimerEvent * )
 
             //Filter or not
             if (flagFilter == 1)
-                inVal = lp.filter(reader->getSample());
+                inVal = notch.filter(reader->getSample());
             else
                 inVal = reader->getSample();
 

@@ -71,7 +71,7 @@ private:
     clock_t timeNew = 0;
     clock_t timeOld = 0;
     ADCreader *reader;
-    Iir::Butterworth::LowPass<3> lp;
+    Iir::Butterworth::BandStop<3> notch;
 };
 
 #endif // WINDOW_H
