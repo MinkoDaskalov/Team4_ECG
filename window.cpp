@@ -48,6 +48,7 @@ Window::Window() : plot( QString("Heart Rate Monitor") ), count(0) // <-- 'c++ i
 
     notch.setup(3,125,45,55);  //order,sampling rate, Fc
     notch.reset ();
+
 }
 
 
@@ -63,6 +64,7 @@ Window::~Window()
 
 void Window::timerEvent( QTimerEvent * )
 {
+
     while(reader->hasSample()){
 
 
@@ -128,7 +130,6 @@ void Window::Filter(){
 
 void Window::CalculateBPM(){
 
-    timeNew = clock()/CLOCKS_PER_SEC;
     int flagBeat = 0;
     int beats = 0;
     double threshold  = average-0.04; // Experimental
@@ -145,15 +146,13 @@ void Window::CalculateBPM(){
                 flagBeat = 0;
         }
     }
-    int elapsedTime = timeNew-timeOld;
-    int bpm = beats*60/elapsedTime;
+    int bpm = beats*3; // take about 20 sec of samples
 
     if (bpm>=60 && bpm <=120)
         heartRate.setText("Heart Rate:"+QString::number(bpm)+" bpm");
     else
-        heartRate.setText("Heart Rate: -- bpm");
+       heartRate.setText("Heart Rate: -- bpm");
 
     sampleCount = 0;
     average = 0;
-    timeOld = timeNew;
 }

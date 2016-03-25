@@ -14,7 +14,6 @@
 #include <QBoxLayout>
 #include "adcreader.h"
 #include "Iir.h"
-#include <time.h>
 
 
 // class definition 'Window'
@@ -54,7 +53,7 @@ private:
     QHBoxLayout  hLayout;  // horizontal layout
 
     static const int plotDataSize =400;
-    static const int samplesForBPM = 2500;
+    static const int samplesForBPM = 2500; //20 sec of samples
 
 	// data arrays for the plot
 	double xData[plotDataSize];
@@ -68,8 +67,7 @@ private:
     double average = 0;
     int flagFilter = 0;
     int sampleCount = 0;
-    clock_t timeNew = 0;
-    clock_t timeOld = 0;
+
     ADCreader *reader;
     Iir::Butterworth::BandStop<3> notch;
 };
