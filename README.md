@@ -7,4 +7,6 @@ To Use:
 	- qmake
 	- make
 
+*Also includes a .zip with design resources for hardware (schematics + board files)
+
 **Code version compatible with RPI2 
